@@ -1,3 +1,5 @@
+<!-- ================== SCRIPT ================== -->
+  
 document.addEventListener('DOMContentLoaded', function () {
   // ---------------- toBlob polyfill (one-time, guarded) ----------------
   if (!HTMLCanvasElement.prototype.toBlob) {
@@ -661,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const defaultHeadingSize3 = 83.66;
     const minSize3            = 10;
-    const maxLines3           = 3;
+    const maxLines3           = 2; /* UPDATED: max lines = 2 */
     const lineHeightRatio3    = 0.8;
 
     const downloadButton3     = document.getElementById('download-3');
@@ -813,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderHeading3() {
       const raw = (headingInput3?.value || '').trim();
-      const defaultText = 'In 2016, Seun dropped out of university.';
+      const defaultText = 'The crypto jihadist.'; /* UPDATED default heading */
       const html = formatHeadingFromInput(raw === '' ? defaultText : headingInput3.value);
       const nodes = root3.getElementsByClassName(headingClass3);
       Array.from(nodes).forEach((field) => {
@@ -827,7 +829,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderBodyContent1_3() {
       const raw  = (contentInput3?.value || '');
-      const def  = 'It was an unconventional move, but he believed that focusing on programming was a better option.';
+      const def  =
+        "Initially, he thought it was a scam. But the more he read about it, the more he became convinced about it’s potentials."; /* UPDATED default content #1 */
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
       const nodes = root3.getElementsByClassName(contentClass3);
       Array.from(nodes).forEach((n) => (n.innerHTML = html));
@@ -836,7 +839,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderBodyContent2_3() {
       const raw  = (contentInput3b?.value || '');
-      const def  = 'And then in 2017, he stumbled upon bitcoin.';
+      const def  =
+        "And so, he learned Rust and started contributing to Ethereum’s open source libraries."; /* UPDATED default content #2 */
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
       const nodes = root3.getElementsByClassName(contentClass3b);
       Array.from(nodes).forEach((n) => (n.innerHTML = html));
@@ -1100,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderHeading4() {
       const raw = (headingInput4?.value || '').trim();
-      const defaultText = 'In 2016, Seun dropped out of university.';
+      const defaultText = "Working with Ethereum’s co-founder."; /* UPDATED default heading */
       const html = formatHeadingFromInput(raw === '' ? defaultText : headingInput4.value);
       const nodes = root4.getElementsByClassName(headingClass4);
       Array.from(nodes).forEach((field) => {
@@ -1114,7 +1118,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderBodyContent1_4() {
       const raw  = (contentInput4?.value || '');
-      const def  = 'It was an unconventional move, but he believed that focusing on programming was a better option.';
+      const def  =
+        "In 2018, Parity Ethereum was hiring and he applied.\nHis contributions were noticed and he got invited for an interview."; /* UPDATED default content #1 with newline */
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
       const nodes = root4.getElementsByClassName(contentClass4);
       Array.from(nodes).forEach((n) => (n.innerHTML = html));
@@ -1123,7 +1128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderBodyContent2_4() {
       const raw  = (contentInput4b?.value || '');
-      const def  = 'And then in 2017, he stumbled upon bitcoin.';
+      const def  = "He impressed the Parity team, and so he got hired."; /* UPDATED default content #2 */
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
       const nodes = root4.getElementsByClassName(contentClass4b);
       Array.from(nodes).forEach((n) => (n.innerHTML = html));
