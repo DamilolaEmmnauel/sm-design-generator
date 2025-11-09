@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function insertSoftNewline(inputEl, e) {
     if (e.key === 'Enter') {
       const pos = inputEl.selectionStart;
-      inputEl.value = inputEl.value.slice(0, pos) + '\n' + inputEl.value.slice(0 + pos);
+      inputEl.value = inputEl.value.slice(0, pos) + '\n' + inputEl.value.slice(pos);
       e.preventDefault();
       inputEl.dispatchEvent(new Event('input'));
     }
@@ -65,26 +65,31 @@ document.addEventListener('DOMContentLoaded', function () {
     return safe;
   }
 
-  // Utility: write HTML into multiple possible selectors (supports fallbacks)
-  function writeHtmlIntoTargets(root, selectorList, html) {
+  // Utility: write HTML into exactly these selectors (no fallbacks)
+  function writeHtmlIntoExactTargets(root, selectors, html, logLabel) {
     const nodes = [];
-    selectorList.forEach(sel => {
+    selectors.forEach(sel => {
       root.querySelectorAll(sel).forEach(n => nodes.push(n));
     });
+    if (!nodes.length) {
+      console.warn(`[${logLabel}] No targets found for selectors:`, selectors);
+    }
     nodes.forEach(n => n.innerHTML = html);
     return nodes.length;
   }
 
-  // Utility: set style on multiple possible selectors
-  function setStyleOnTargets(root, selectorList, prop, val) {
-    selectorList.forEach(sel => {
-      root.querySelectorAll(sel).forEach(n => n.style[prop] = val);
+  // Utility: set style on exact selectors
+  function setStyleOnExactTargets(root, selectors, prop, val, logLabel) {
+    let count = 0;
+    selectors.forEach(sel => {
+      root.querySelectorAll(sel).forEach(n => { n.style[prop] = val; count++; });
     });
+    if (!count) console.warn(`[${logLabel}] No targets to style:`, selectors);
   }
 
-  // Utility: get nodes for measuring (first matching selector that exists)
-  function getMeasureNodes(root, selectorList) {
-    for (const sel of selectorList) {
+  // Utility: collect the first existing selector list for measurement
+  function getMeasureNodes(root, selectors) {
+    for (const sel of selectors) {
       const list = root.querySelectorAll(sel);
       if (list.length) return list;
     }
@@ -663,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   })();
 
-  /* ================== SLIDE 3 (Card 3 with robust selectors) ================== */
+  /* ================== SLIDE 3 (Card 3 — STRICT SELECTORS) ================== */
   (function () {
     const root3 = document.getElementById('id-card-3');
 
@@ -681,11 +686,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const contentInput3   = document.getElementById('03-content');
     const contentInput3b  = document.getElementById('03-content-2');
 
-    /* Primary + Fallback selectors for Card 3 */
-    const headingTargets3   = ['.page3-design-heading', '.carousel-4-page3-header_wrapper', '.carousel-4-body-header_wrapper'];
-    const content1Targets3  = ['.page3-design-content', '.design-content-body'];
-    const content2Targets3  = ['.page3-design-content-2', '.design-content-body-2'];
-    const imgTargets3       = ['.page3-design-image', '.id-card-mugshot-body', '.id-card-mugshot'];
+    /* STRICT selectors for Card 3 */
+    const headingTargets3   = ['.page3-design-heading'];
+    const content1Targets3  = ['.page3-design-content'];
+    const content2Targets3  = ['.page3-design-content-2'];
+    const imgTargets3       = ['.page3-design-image'];
 
     const defaultHeadingSize3 = 83.66;
     const minSize3            = 10;
@@ -705,15 +710,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editImageButton3)   editImageButton3.style.display   = 'none';
     if (deleteImageButton3) deleteImageButton3.style.display = 'none';
 
-    // Set placeholder image on first available image target
+    // Default placeholder image
     (function setDefaultImg3(){
-      for (const sel of imgTargets3) {
-        const node = root3?.querySelector(sel);
-        if (node) {
-          node.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
-          node.crossOrigin = 'anonymous';
-          break;
-        }
+      const node = root3?.querySelector(imgTargets3[0]);
+      if (node) {
+        node.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
+        node.crossOrigin = 'anonymous';
+      } else {
+        console.warn('[Card 3] No image target found for placeholder', imgTargets3);
       }
     })();
 
@@ -733,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cropperImage3.src = uploadedImageData3;
         cropperImage3.crossOrigin = 'anonymous';
         cropperModal3.style.display = 'block';
-        /* square aspect for 342 x 342 */
+        /* 342 x 342 (square) */
         cropper3 = new Cropper(cropperImage3, { aspectRatio: 1, viewMode: 2 });
         if (editImageButton3)   editImageButton3.style.display   = 'inline-block';
         if (deleteImageButton3) deleteImageButton3.style.display = 'inline-block';
@@ -765,20 +769,14 @@ document.addEventListener('DOMContentLoaded', function () {
           imageSmoothingQuality: 'high'
         });
         const png = canvas.toDataURL('image/png');
-        // write into first matching image collection
-        let set = false;
-        for (const sel of imgTargets3) {
-          const imgs = root3.querySelectorAll(sel);
-          if (imgs.length) {
-            imgs.forEach(img => { img.crossOrigin = 'anonymous'; img.src = png; });
-            set = true;
-            break;
-          }
+
+        const imgs = root3.querySelectorAll(imgTargets3[0]);
+        if (imgs.length) {
+          imgs.forEach(img => { img.crossOrigin = 'anonymous'; img.src = png; });
+        } else {
+          console.warn('[Card 3] No image targets found on save', imgTargets3);
         }
-        if (!set) {
-          // fallback by class (if any)
-          setAllImgSrcByClass(root3, 'page3-design-image', png);
-        }
+
         uploadedImageData3 = png;
         cropper3.destroy();
         cropper3 = null;
@@ -793,16 +791,13 @@ document.addEventListener('DOMContentLoaded', function () {
         cropperImage3.src = uploadedImageData3;
         cropperImage3.crossOrigin = 'anonymous';
         cropperModal3.style.display = 'block';
-        /* square aspect for 342 x 342 */
         cropper3 = new Cropper(cropperImage3, { aspectRatio: 1, viewMode: 2 });
       });
     }
 
     if (deleteImageButton3) {
       deleteImageButton3.addEventListener('click', () => {
-        for (const sel of imgTargets3) {
-          root3.querySelectorAll(sel).forEach(img => img.src = '');
-        }
+        root3.querySelectorAll(imgTargets3[0]).forEach(img => img.src = '');
         uploadedImageData3 = null;
         if (fileChosenText3) {
           fileChosenText3.textContent = 'No file chosen';
@@ -816,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function adjustFontSizeForHeadings3() {
-      const fields = getMeasureNodes(root3, headingTargets3);
+      const fields = root3.querySelectorAll(headingTargets3[0]);
       fields.forEach((field) => {
         field.style.fontSize   = defaultHeadingSize3 + 'px';
         field.style.lineHeight = lineHeightRatio3;
@@ -843,9 +838,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    /* dynamic height for page 3 heading wrapper */
     function adjustPage3WrapperHeight3() {
-      const wrappers = root3.querySelectorAll('.carousel-4-page3-header_wrapper, .carousel-4-body-header_wrapper');
+      const wrappers = root3.querySelectorAll('.carousel-4-page3-header_wrapper');
       wrappers.forEach((wrapper) => {
         wrapper.style.height = 'auto';
         wrapper.style.height = wrapper.scrollHeight + 'px';
@@ -867,8 +861,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const defaultText = 'The crypto jihadist.';
       const html = formatHeadingFromInput(raw === '' ? defaultText : headingInput3.value);
 
-      writeHtmlIntoTargets(root3, headingTargets3, html);
-      if (raw === '') setStyleOnTargets(root3, headingTargets3, 'fontSize', defaultHeadingSize3 + 'px');
+      writeHtmlIntoExactTargets(root3, headingTargets3, html, 'Card 3: Heading');
+      if (raw === '') setStyleOnExactTargets(root3, headingTargets3, 'fontSize', defaultHeadingSize3 + 'px', 'Card 3: Heading');
 
       if (raw !== '') adjustFontSizeForHeadings3();
       adjustPage3WrapperHeight3();
@@ -879,7 +873,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const raw  = (contentInput3?.value || '');
       const def  = "Initially, he thought it was a scam. But the more he read about it, the more he became convinced about it’s potentials.";
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
-      writeHtmlIntoTargets(root3, content1Targets3, html);
+      writeHtmlIntoExactTargets(root3, content1Targets3, html, 'Card 3: Content1');
       updateDownloadButtonState3();
     }
 
@@ -887,7 +881,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const raw  = (contentInput3b?.value || '');
       const def  = "And so, he learned Rust and started contributing to Ethereum’s open source libraries.";
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
-      writeHtmlIntoTargets(root3, content2Targets3, html);
+      writeHtmlIntoExactTargets(root3, content2Targets3, html, 'Card 3: Content2');
       updateDownloadButtonState3();
     }
 
@@ -970,7 +964,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   })();
 
-  /* ================== SLIDE 4 (Card 4 with robust selectors) ================== */
+  /* ================== SLIDE 4 (Card 4 — STRICT SELECTORS) ================== */
   (function () {
     const root4 = document.getElementById('id-card-4');
 
@@ -988,11 +982,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const contentInput4   = document.getElementById('04-content');
     const contentInput4b  = document.getElementById('04-content-2');
 
-    /* Primary + Fallback selectors for Card 4 */
-    const headingTargets4   = ['.page4-design-heading', '.carousel-4-page4-header_wrapper', '.carousel-4-body-header_wrapper'];
-    const content1Targets4  = ['.page4-design-content', '.design-content-body'];
-    const content2Targets4  = ['.page4-design-content-2', '.design-content-body-2'];
-    const imgTargets4       = ['.page4-design-image', '.id-card-mugshot-body', '.id-card-mugshot'];
+    /* STRICT selectors for Card 4 */
+    const headingTargets4   = ['.page4-design-heading'];
+    const content1Targets4  = ['.page4-design-content'];
+    const content2Targets4  = ['.page4-design-content-2'];
+    const imgTargets4       = ['.page4-design-image'];
 
     const defaultHeadingSize4 = 83.66;
     const minSize4            = 10;
@@ -1012,15 +1006,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editImageButton4)   editImageButton4.style.display   = 'none';
     if (deleteImageButton4) deleteImageButton4.style.display = 'none';
 
-    // Set placeholder image
+    // Default placeholder image
     (function setDefaultImg4(){
-      for (const sel of imgTargets4) {
-        const node = root4?.querySelector(sel);
-        if (node) {
-          node.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
-          node.crossOrigin = 'anonymous';
-          break;
-        }
+      const node = root4?.querySelector(imgTargets4[0]);
+      if (node) {
+        node.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
+        node.crossOrigin = 'anonymous';
+      } else {
+        console.warn('[Card 4] No image target found for placeholder', imgTargets4);
       }
     })();
 
@@ -1040,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cropperImage4.src = uploadedImageData4;
         cropperImage4.crossOrigin = 'anonymous';
         cropperModal4.style.display = 'block';
-        /* square aspect for 342 x 342 (same as Card 3) */
+        /* 342 x 342 (square) */
         cropper4 = new Cropper(cropperImage4, { aspectRatio: 1, viewMode: 2 });
         if (editImageButton4)   editImageButton4.style.display   = 'inline-block';
         if (deleteImageButton4) deleteImageButton4.style.display = 'inline-block';
@@ -1072,18 +1065,14 @@ document.addEventListener('DOMContentLoaded', function () {
           imageSmoothingQuality: 'high'
         });
         const png = canvas.toDataURL('image/png');
-        let set = false;
-        for (const sel of imgTargets4) {
-          const imgs = root4.querySelectorAll(sel);
-          if (imgs.length) {
-            imgs.forEach(img => { img.crossOrigin = 'anonymous'; img.src = png; });
-            set = true;
-            break;
-          }
+
+        const imgs = root4.querySelectorAll(imgTargets4[0]);
+        if (imgs.length) {
+          imgs.forEach(img => { img.crossOrigin = 'anonymous'; img.src = png; });
+        } else {
+          console.warn('[Card 4] No image targets found on save', imgTargets4);
         }
-        if (!set) {
-          setAllImgSrcByClass(root4, 'page4-design-image', png);
-        }
+
         uploadedImageData4 = png;
         cropper4.destroy();
         cropper4 = null;
@@ -1098,16 +1087,13 @@ document.addEventListener('DOMContentLoaded', function () {
         cropperImage4.src = uploadedImageData4;
         cropperImage4.crossOrigin = 'anonymous';
         cropperModal4.style.display = 'block';
-        /* square aspect for 342 x 342 */
         cropper4 = new Cropper(cropperImage4, { aspectRatio: 1, viewMode: 2 });
       });
     }
 
     if (deleteImageButton4) {
       deleteImageButton4.addEventListener('click', () => {
-        for (const sel of imgTargets4) {
-          root4.querySelectorAll(sel).forEach(img => img.src = '');
-        }
+        root4.querySelectorAll(imgTargets4[0]).forEach(img => img.src = '');
         uploadedImageData4 = null;
         if (fileChosenText4) {
           fileChosenText4.textContent = 'No file chosen';
@@ -1121,7 +1107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function adjustFontSizeForHeadings4() {
-      const fields = getMeasureNodes(root4, headingTargets4);
+      const fields = root4.querySelectorAll(headingTargets4[0]);
       fields.forEach((field) => {
         field.style.fontSize   = defaultHeadingSize4 + 'px';
         field.style.lineHeight = lineHeightRatio4;
@@ -1148,9 +1134,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    /* dynamic height for page 4 heading wrapper */
     function adjustPage4WrapperHeight4() {
-      const wrappers = root4.querySelectorAll('.carousel-4-page4-header_wrapper, .carousel-4-body-header_wrapper');
+      const wrappers = root4.querySelectorAll('.carousel-4-page4-header_wrapper');
       wrappers.forEach((wrapper) => {
         wrapper.style.height = 'auto';
         wrapper.style.height = wrapper.scrollHeight + 'px';
@@ -1172,8 +1157,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const defaultText = "Working with Ethereum’s co-founder.";
       const html = formatHeadingFromInput(raw === '' ? defaultText : headingInput4.value);
 
-      writeHtmlIntoTargets(root4, headingTargets4, html);
-      if (raw === '') setStyleOnTargets(root4, headingTargets4, 'fontSize', defaultHeadingSize4 + 'px');
+      writeHtmlIntoExactTargets(root4, headingTargets4, html, 'Card 4: Heading');
+      if (raw === '') setStyleOnExactTargets(root4, headingTargets4, 'fontSize', defaultHeadingSize4 + 'px', 'Card 4: Heading');
 
       if (raw !== '') adjustFontSizeForHeadings4();
       adjustPage4WrapperHeight4();
@@ -1184,7 +1169,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const raw  = (contentInput4?.value || '');
       const def  = "In 2018, Parity Ethereum was hiring and he applied.\nHis contributions were noticed and he got invited for an interview.";
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
-      writeHtmlIntoTargets(root4, content1Targets4, html);
+      writeHtmlIntoExactTargets(root4, content1Targets4, html, 'Card 4: Content1');
       updateDownloadButtonState4();
     }
 
@@ -1192,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const raw  = (contentInput4b?.value || '');
       const def  = "He impressed the Parity team, and so he got hired.";
       const html = (raw.trim() === '' ? def : raw).replace(/\n/g, '<br>');
-      writeHtmlIntoTargets(root4, content2Targets4, html);
+      writeHtmlIntoExactTargets(root4, content2Targets4, html, 'Card 4: Content2');
       updateDownloadButtonState4();
     }
 
