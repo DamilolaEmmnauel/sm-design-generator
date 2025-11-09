@@ -15,6 +15,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --------------- Small helpers ---------------
+  function pickRoot(selectorPriority, logLabel) {
+    for (const sel of selectorPriority) {
+      const node = document.querySelector(sel);
+      if (node) return node;
+    }
+    console.warn(`[${logLabel}] Root not found. Tried:`, selectorPriority);
+    return null;
+  }
+
   function setAllImgSrc(rootEl, selector, dataUrl) {
     rootEl.querySelectorAll(selector).forEach((img) => {
       img.crossOrigin = 'anonymous';
@@ -65,14 +74,15 @@ document.addEventListener('DOMContentLoaded', function () {
     return safe;
   }
 
-  // Utility: write HTML into exactly these selectors (no fallbacks)
+  // Utility: write HTML into exactly these selectors (no cross-card writes)
   function writeHtmlIntoExactTargets(root, selectors, html, logLabel) {
+    if (!root) return 0;
     const nodes = [];
     selectors.forEach(sel => {
       root.querySelectorAll(sel).forEach(n => nodes.push(n));
     });
     if (!nodes.length) {
-      console.warn(`[${logLabel}] No targets found for selectors:`, selectors);
+      console.warn(`[${logLabel}] No targets found for selectors:`, selectors, 'within', root);
     }
     nodes.forEach(n => n.innerHTML = html);
     return nodes.length;
@@ -80,24 +90,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Utility: set style on exact selectors
   function setStyleOnExactTargets(root, selectors, prop, val, logLabel) {
+    if (!root) return 0;
     let count = 0;
     selectors.forEach(sel => {
       root.querySelectorAll(sel).forEach(n => { n.style[prop] = val; count++; });
     });
-    if (!count) console.warn(`[${logLabel}] No targets to style:`, selectors);
-  }
-
-  // Utility: collect the first existing selector list for measurement
-  function getMeasureNodes(root, selectors) {
-    for (const sel of selectors) {
-      const list = root.querySelectorAll(sel);
-      if (list.length) return list;
-    }
-    return [];
+    if (!count) console.warn(`[${logLabel}] No targets to style:`, selectors, 'within', root);
+    return count;
   }
 
   /* ================== SLIDE 1 (Card 1) ================== */
   (function () {
+    const resultsDiv = pickRoot(['#id-card', '.card-1-root', '[data-card="1"]'], 'Card 1 root');
+    if (!resultsDiv) return;
+
     const defaultHeadingSize1 = 83.66;
     const minSize             = 10;
     const maxLines            = 3;
@@ -125,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const downloadButton       = document.getElementById('download');
     const downloadButtonText   = downloadButton?.querySelector('.button-text');
 
-    const resultsDiv           = document.getElementById('id-card');
     const parentDiv            = document.querySelector('.preview_block');
 
     let cropper = null;
@@ -378,7 +383,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ================== SLIDE 2 (Card 2) ================== */
   (function () {
-    const root2 = document.getElementById('id-card-2');
+    const root2 = pickRoot(['#id-card-2', '.card-2-root', '[data-card="2"]'], 'Card 2 root');
+    if (!root2) return;
 
     const mugshotInput2           = document.getElementById('mugshot-2');
     const dragDropArea2           = document.getElementById('drag-drop-area-2');
@@ -416,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editImageButton2)   editImageButton2.style.display   = 'none';
     if (deleteImageButton2) deleteImageButton2.style.display = 'none';
 
-    const defaultImg2 = root2?.querySelector('.mugshot-2');
+    const defaultImg2 = root2.querySelector('.mugshot-2');
     if (defaultImg2) {
       defaultImg2.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
       defaultImg2.crossOrigin = 'anonymous';
@@ -670,7 +676,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ================== SLIDE 3 (Card 3 — STRICT SELECTORS) ================== */
   (function () {
-    const root3 = document.getElementById('id-card-3');
+    const root3 = pickRoot(['#id-card-3', '.card-3-root', '[data-card="3"]'], 'Card 3 root');
+    if (!root3) return;
 
     const mugshotInput3           = document.getElementById('mugshot-3');
     const dragDropArea3           = document.getElementById('drag-drop-area-3');
@@ -712,12 +719,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Default placeholder image
     (function setDefaultImg3(){
-      const node = root3?.querySelector(imgTargets3[0]);
+      const node = root3.querySelector(imgTargets3[0]);
       if (node) {
         node.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
         node.crossOrigin = 'anonymous';
       } else {
-        console.warn('[Card 3] No image target found for placeholder', imgTargets3);
+        console.warn('[Card 3] No image target found for placeholder', imgTargets3, 'within', root3);
       }
     })();
 
@@ -774,7 +781,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (imgs.length) {
           imgs.forEach(img => { img.crossOrigin = 'anonymous'; img.src = png; });
         } else {
-          console.warn('[Card 3] No image targets found on save', imgTargets3);
+          console.warn('[Card 3] No image targets found on save', imgTargets3, 'within', root3);
         }
 
         uploadedImageData3 = png;
@@ -966,7 +973,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ================== SLIDE 4 (Card 4 — STRICT SELECTORS) ================== */
   (function () {
-    const root4 = document.getElementById('id-card-4');
+    const root4 = pickRoot(['#id-card-4', '.card-4-root', '[data-card="4"]'], 'Card 4 root');
+    if (!root4) return;
 
     const mugshotInput4           = document.getElementById('mugshot-4');
     const dragDropArea4           = document.getElementById('drag-drop-area-4');
@@ -1008,12 +1016,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Default placeholder image
     (function setDefaultImg4(){
-      const node = root4?.querySelector(imgTargets4[0]);
+      const node = root4.querySelector(imgTargets4[0]);
       if (node) {
         node.src = 'https://cdn.prod.website-files.com/678517a28eb2d34a4320905a/6785414deac53aed0c68c0b9_Placeholder%20IMG.png';
         node.crossOrigin = 'anonymous';
       } else {
-        console.warn('[Card 4] No image target found for placeholder', imgTargets4);
+        console.warn('[Card 4] No image target found for placeholder', imgTargets4, 'within', root4);
       }
     })();
 
@@ -1070,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (imgs.length) {
           imgs.forEach(img => { img.crossOrigin = 'anonymous'; img.src = png; });
         } else {
-          console.warn('[Card 4] No image targets found on save', imgTargets4);
+          console.warn('[Card 4] No image targets found on save', imgTargets4, 'within', root4);
         }
 
         uploadedImageData4 = png;
