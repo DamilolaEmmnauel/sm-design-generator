@@ -1,54 +1,3 @@
-<!-- ================== LIBRARIES ================== -->
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-  rel="stylesheet"
-/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js"></script>
-
-<!-- ================== STYLES ================== -->
-<style>
-  .design-heading,
-  .design-content,
-  .design-content-2,
-  .design-heading-body,
-  .design-content-body,
-  .design-content-body-2 {
-    white-space: normal; /* allow <br> */
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
-
-  /* Accent color for [bracketed] heading segments */
-  .accent { color: #FF3600; }
-
-  /* Back-face legacy (kept for completeness) */
-  .design-heading-back {
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
-  .design-content-back {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* dynamic height on BODY, COVER, and PAGE 3/4 heading wrappers */
-  .carousel-4-body-header_wrapper,
-  .carousel-4-cover-header-wrapper,
-  .carousel-4-page3-header_wrapper,
-  .carousel-4-page4-header_wrapper {
-    white-space: normal;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    display: block;
-    height: auto !important;
-  }
-</style>
-
-<!-- ================== SCRIPT ================== -->
-<script>
 document.addEventListener('DOMContentLoaded', function () {
   // ---------------- toBlob polyfill (one-time, guarded) ----------------
   if (!HTMLCanvasElement.prototype.toBlob) {
@@ -1260,4 +1209,3 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   })();
 });
-</script>
